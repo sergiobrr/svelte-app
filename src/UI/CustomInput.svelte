@@ -1,10 +1,11 @@
 <script>
   export let value;
-  export let controltype;
+  export let controltype = 'input';
   export let label;
   export let id;
-  export let rows;
-  export let type;
+  export let rows = '1';
+  export let type = 'text';
+  export let required = false;
 </script>
 <style>
   .field {
@@ -22,10 +23,10 @@
     <input class="input" { type }
            placeholder="Insert { value }" { id }
            { value }
-           on:input >
+           on:input required="{required}">
     {:else}
     <textarea class="textarea" { rows } { id }
-              { value } on:input />
+              { value } on:input required="{required}"/>
     {/if}
 	</div>
 </div>

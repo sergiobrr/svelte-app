@@ -3,6 +3,8 @@
 	import BigHeroWithLinks from "./UI/BigHeroWithLinks.svelte";
 	import MainNavbar from "./UI/MainNavbar.svelte";
 	import NuanceForm from "./Nagger/Nuance/NuanceForm.svelte";
+	import { onMount, onDestroy } from 'svelte';
+	import nuanceStore from './nuance-store';
 
 	let heroTitle = 'Infastidisci chi detesti!';
 	let heroSubTitle = 'Digli che non vuoi sapere cosa pensano...';
@@ -10,44 +12,30 @@
 	let link1Text = 'Guarda i potenziali nemici ;-D';
 	let link2 = '#new-nuance';
 	let link2Text = 'Crea un gruppo';
-	let nuances = [
-		{
-			id: 'n1',
-			name: 'Amici di Fiorello',
-			subtitle: 'Quelli che guardano la tv',
-			descrizione: 'Individuare quelli che seguono la trasmissione',
-			componenti: ['Fiorello', 'Il gabibbo'],
-			fondatore: 'Zino Zani',
-			email: 'zino@zani.com',
-			creato: '23/04/2019',
-			logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI74-HyanJa4kp4ysCc9ejaNNnbV86pEFFli9tgd27LmoCxuYj&s'
-		},
-		{
-			id: 'n2',
-			name: 'Destroidi',
-			subtitle: 'Quelli che razzano',
-			descrizione: 'Individuare quelli che sono razzisti',
-			componenti: ['Salvini', 'Meloni', 'Fiori'],
-			fondatore: 'Zino Zani',
-			email: 'zino@zani.com',
-			creato: '23/08/2019',
-			logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI74-HyanJa4kp4ysCc9ejaNNnbV86pEFFli9tgd27LmoCxuYj&s'
-		},
-		{
-			id: 'n3',
-			name: 'Amici di Trump',
-			subtitle: 'Quelli che gli piace trump',
-			descrizione: 'Individuare quelli votano a destra un us',
-			componenti: ['The donald', 'Steve Bannon'],
-			fondatore: 'Licia Laccia',
-			email: 'licia@mentre.noi',
-			creato: '2/10/2019',
-			logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI74-HyanJa4kp4ysCc9ejaNNnbV86pEFFli9tgd27LmoCxuYj&s'
-		},
-	];
 	let newNuance = null;
+	let nuances = [];
+	let subscription;
+
+	onMount(() => {
+		subscription = nuanceStore.subscribe(items => {
+			nuances = items;
+		});
+	});
+
+	onDestroy(() => {
+		subscription();
+	});
+
 	function handleAddNuance(event) {
-		nuances = [event.detail.nuance, ...nuances];
+		nuanceStore.update(items => {
+			return [event.detail.nuance, ...items];
+		});
+	}
+
+	function handleDeleteNuance(event) {
+		nuanceStore.update(items => {
+			return items.filter(item => item.id !== nuances[event.detail.index].id);
+		});
 	}
 </script>
 
@@ -65,6 +53,7 @@
 <div class="container is-fluid">
 	<NuanceForm on:addnuance={ handleAddNuance }>
 	</NuanceForm>
-	<NuanceGrid {nuances}>
+	<NuanceGrid {nuances}
+							on:delete-nuance={handleDeleteNuance}>
 	</NuanceGrid>
 </div>
